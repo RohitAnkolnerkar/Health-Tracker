@@ -1,0 +1,48 @@
+{% extends "Base.html" %}
+
+{% block title %}Health Records | AI Health Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="text-align: center;">Your Health Records</h2>
+
+    {% if records %}
+    <div class="table-wrapper">
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Date</th>
+                    <th>Blood Pressure</th>
+                    <th>Heart Rate</th>
+                    <th>Stress Level</th>
+                    <th>Sleep Hours</th>
+                    <th>Calories Burned</th>
+                    <th>Oxygen Saturation</th>
+                    <th>Steps</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.user_id }}</td>
+                    <td>{{ record.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ record.blood_pressure }}</td>
+                    <td>{{ record.heart_rate }}</td>
+                    <td>{{ record.stress_level }}</td>
+                    <td>{{ record.sleep_hours }}</td>
+                    <td>{{ record.calories_burned }}</td>
+                    <td>{{ record.oxygen_saturation }}%</td>
+                    <td>{{ record.steps }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert-warning" style="padding: 1rem; margin-top: 1rem; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px;">
+        No health records found.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

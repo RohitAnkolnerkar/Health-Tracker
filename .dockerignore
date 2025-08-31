@@ -1,0 +1,29 @@
+# Ignore virtual environments
+venv/
+health/
+
+# Ignore database files
+*.db
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+.DS_Store
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Build files
+build/
+dist/
+*.egg-info/

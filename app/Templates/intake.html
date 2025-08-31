@@ -1,0 +1,56 @@
+{% extends "Base.html" %}
+
+{% block title %}Calorie & Water Intake | AI Health Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="text-align: center;">Track Your Daily Intake</h2>
+    
+
+    <form method="post" action="{{ url_for('Intake.total') }}">
+        <label for="food_items">Enter Food Items (comma separated)</label>
+        <input type="text" name="food_items" id="food_items" placeholder="e.g. chicken biryani, banana, milk" required>
+
+        <label for="meal_time">Enter Meal Timimg</label>
+        <input type="text" name="meal_time" id="meal_time" placeholder="10:00 AM" required>
+        
+
+        <label for="water_amount">Water Intake (in liters or glasses)</label>
+        <input type="number" name="water_amount" id="water_amount" step="any" placeholder="e.g. 2.5 or 4 glasses" required>
+
+        <button type="submit">Predict</button>
+    </form>
+</div>
+
+{% if prediction %}
+<div class="card" style="margin-top: 2rem;">
+    <h3>Total Calories Consumed: {{ prediction }} cal</h3>
+    <h4>Breakdown:</h4>
+    <ul style="list-style-type: disc; padding-left: 1.5rem;">
+        {% for item in breakdown %}
+            <li><strong>{{ item.food_item }}</strong> → {{ item.calories }} cal</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if water_intake %}
+<div class="card" style="margin-top: 2rem;">
+    <h3>Total Water Intake: {{ water_intake }}</h3>
+</div>
+{% endif %}
+
+{% if recommendation %}
+<div class="card recommendation-card">
+    <div class="icon-section">
+        <img src="{{ url_for('static', filename='images/healthy.svg') }}" alt="Tip Icon" width="50">
+    </div>
+    <div class="text-section">
+        <h3>Personalized Health Tip</h3>
+        <p>{{ recommendation }}</p>
+    </div>
+</div>
+
+
+{% endif %}
+{% endblock %}

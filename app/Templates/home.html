@@ -1,0 +1,41 @@
+{% extends "Base.html" %}
+
+{% block title %}Home | AI Health Tracker{% endblock %}
+
+{% block content %}
+
+<!-- ✅ Profile Photo Top Right -->
+{% if session.get('user') and user_photo %}
+    <div style="position: absolute; top: 20px; right: 20px;">
+        <img src="{{ url_for('static', filename=user_photo.split('static/')[-1]) }}"
+             alt="Profile Photo"
+             width="60"
+             height="60"
+             style="border-radius: 50%; object-fit: cover; border: 2px solid #007bff;">
+    </div>
+{% endif %}
+
+<div class="card">
+    <h1>Welcome to AI Health Tracker</h1>
+    <p>
+        Your personal health assistant powered by AI. Track your calories, monitor your health,
+        predict potential diseases, and get personalized health suggestions.
+    </p>
+</div>
+
+<div class="card">
+    {% if session.get('user') %}
+        <h2>Quick Actions</h2>
+        <ul>
+            <li><a href="{{ url_for('predict_calorie.predict_calorie') }}">🔥 Predict Calories Burned</a></li>
+            <li><a href="{{ url_for('predict_dieases.predict_dieases') }}">🧬 Predict Disease</a></li>
+            <li><a href="{{ url_for('health_records.user_health') }}">📋 View Health Records</a></li>
+            <li><a href="{{ url_for('profile.profile') }}">👤 Manage Profile</a></li>
+            <li><a href="{{ url_for('register.logout') }}">🚪 Logout</a></li>
+        </ul>
+    {% else %}
+        <p>Welcome To AI Health Tracker. Please Register or Login to access features.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

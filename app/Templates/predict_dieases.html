@@ -1,0 +1,30 @@
+{% extends "Base.html" %}
+{% block title %}Disease Prediction{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<div class="container">
+    <h2>Select Symptoms</h2>
+    <form action="{{ url_for('predict_dieases.predict_dieases') }}" method="post">
+        <select name="symptom[]" multiple="multiple" id="symptom-select" style="width: 100%">
+            {% for symptom in symptoms %}
+                <option value="{{ symptom }}">{{ symptom.replace('_', ' ').title() }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <button type="submit">Predict Disease</button>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#symptom-select').select2({
+            placeholder: "Start typing symptoms...",
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends "Base.html" %}
+
+{% block title %}Live Dashboard | AI Health Tracker{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">AI Health Tracker Dashboard</h2>
+
+    <!-- Duration Buttons -->
+    <div class="text-center mb-3">
+        <button id="btn-7" class="btn btn-primary me-2" onclick="setDays(7)">Last 7 Days</button>
+        <button id="btn-30" class="btn btn-outline-primary" onclick="setDays(30)">Last 30 Days</button>
+    </div>
+
+    <!-- Heart Risk Highlight -->
+    <div id="heart-risk-highlight" class="text-center mb-4"></div>
+
+    <!-- Insights -->
+    <div id="insights-box" class="p-4 bg-light rounded shadow-sm mb-4">
+        <h5>📊 Health Summary</h5>
+        <ul id="insights-list" class="list-group"></ul>
+    </div>
+
+    <!-- Daily Personalized Insights -->
+    <div class="card p-3 mb-4">
+        <h5>🔍 Daily Personalized Insights</h5>
+        <ul id="daily-insights-list" class="list-group">
+            <li class="list-group-item text-muted">Loading...</li>
+        </ul>
+    </div>
+
+    <!-- Goal Progress -->
+    <div class="card p-3 mb-3">
+        <h5>🎯 Active Goals</h5>
+        <div id="goal-container" class="d-flex flex-wrap gap-4 justify-content-start"></div>
+    </div>
+
+    <!-- Alerts and Cards -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card p-3 mb-3">
+                <h5>🚨 Alerts</h5>
+                <ul id="alerts-list" class="list-group"></ul>
+            </div>
+        </div>
+        <div class="col-md-6" id="cards-container"></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="heartChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="stepsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(#007bff 0%, #e0e0e0 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    position: relative;
+}
+.progress-circle span {
+    position: absolute;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let days = 7;
+let charts = {};
+
+function setDays(d) {
+    if (days === d) return;
+
+    days = d;
+    document.getElementById("btn-7").classList.remove("btn-primary");
+    document.getElementById("btn-7").classList.add("btn-outline-primary");
+    document.getElementById("btn-30").classList.remove("btn-primary");
+    document.getElementById("btn-30").classList.add("btn-outline-primary");
+
+    const activeBtn = document.getElementById(`btn-${d}`);
+    activeBtn.classList.add("btn-primary");
+    activeBtn.classList.remove("btn-outline-primary");
+
+    loadDashboard();
+}
+
+function loadDashboard() {
+    fetch(`/api/dashboard-data?days=${days}`)
+        .then(res => {
+            if (!res.ok) {
+                window.location.href = "/login";
+                return;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+            renderHeartRisk(data.insights["Heart Risk"]);
+            renderInsights(data.insights);
+            renderAlerts(data.alerts);
+            renderCards(data.cards);
+            renderGoal(data.goal);
+            renderDailyInsights(data.dailyInsights);
+            renderChart('heartChart', 'Heart Rate (bpm)', data.heartData, 'line');
+            renderChart('stepsChart', 'Steps Walked', data.stepsData, 'bar');
+        });
+}
+
+function renderHeartRisk(risk) {
+    const div = document.getElementById("heart-risk-highlight");
+    if (!risk) {
+        div.innerHTML = '';
+        return;
+    }
+
+    const isHigh = risk.includes("High Risk");
+    div.innerHTML = `<strong style="color: ${isHigh ? 'red' : 'green'}; font-size: 1.2rem;">${risk}</strong>`;
+}
+
+function renderInsights(insights) {
+    const list = document.getElementById("insights-list");
+    list.innerHTML = '';
+
+    for (const [key, value] of Object.entries(insights)) {
+        if (key === "Heart Risk") continue;
+
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.innerHTML = `<strong>${key}:</strong> ${value}`;
+        list.appendChild(li);
+    }
+}
+
+function renderDailyInsights(insights) {
+    const list = document.getElementById("daily-insights-list");
+    list.innerHTML = "";
+
+    if (insights && insights.length > 0) {
+        insights.forEach(msg => {
+            const li = document.createElement("li");
+            li.className = "list-group-item";
+            li.textContent = msg;
+            list.appendChild(li);
+        });
+    } else {
+        const li = document.createElement("li");
+        li.className = "list-group-item text-muted";
+        li.textContent = "No new insights today.";
+        list.appendChild(li);
+    }
+}
+
+function renderAlerts(alerts) {
+    const list = document.getElementById("alerts-list");
+    list.innerHTML = '';
+    alerts.forEach(msg => {
+        const li = document.createElement("li");
+        li.className = "list-group-item list-group-item-danger";
+        li.textContent = msg;
+        list.appendChild(li);
+    });
+}
+
+function renderGoal(goals) {
+    const container = document.getElementById("goal-container");
+    container.innerHTML = '';
+
+    if (!goals || goals.length === 0) {
+        container.innerHTML = '<p class="text-muted">No active goals</p>';
+        return;
+    }
+
+    goals.forEach((goal) => {
+        const percent = Math.min(Math.round(goal.percentage), 100);
+        const card = document.createElement("div");
+        card.className = "text-center";
+
+        const circle = document.createElement("div");
+        circle.className = "progress-circle mb-2";
+        circle.style.background = `conic-gradient(#007bff ${percent}%, #e0e0e0 ${percent}%)`;
+
+        const label = document.createElement("span");
+        label.textContent = `${percent}%`;
+
+        circle.appendChild(label);
+
+        const desc = document.createElement("p");
+        desc.className = "text-muted small";
+        desc.textContent = goal.description;
+
+        card.appendChild(circle);
+        card.appendChild(desc);
+        container.appendChild(card);
+    });
+}
+
+function renderCards(cards) {
+    const container = document.getElementById("cards-container");
+    container.innerHTML = '';
+    cards.forEach(card => {
+        const div = document.createElement("div");
+        div.className = "alert alert-info";
+        div.textContent = card;
+        container.appendChild(div);
+    });
+}
+
+function renderChart(id, label, data, type) {
+    const ctx = document.getElementById(id).getContext("2d");
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart(ctx, {
+        type: type,
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: label,
+                data: data.values,
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    setDays(7);
+    setInterval(loadDashboard, 60000);
+});
+</script>
+{% endblock %} update this 

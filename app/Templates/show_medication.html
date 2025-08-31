@@ -1,0 +1,39 @@
+{% extends "Base.html" %}
+
+{% block title %}My Medications{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Hello {{ username }}, here are your medications</h1>
+
+    {% if medications %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for med in medications %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ med.name }}</h5>
+                            <p class="card-text"><strong>Dosage:</strong> {{ med.dosage }}</p>
+                            <p class="card-text"><strong>Reminder Time:</strong> {{ med.time.strftime("%I:%M %p") }}</p>
+                            <p class="card-text"><strong>Start Date:</strong> {{ med.start_date.strftime("%Y-%m-%d") }}</p>
+                            <p class="card-text"><strong>End Date:</strong> {{ med.end_date.strftime("%Y-%m-%d") }}</p>
+                            <span class="badge {{ 'bg-success' if med.taken_today else 'bg-danger' }}">
+                                {{ 'Taken Today' if med.taken_today else 'Not Taken' }}
+                            </span>
+                        </div>
+                        <div class="card-footer text-end">
+                            <form method="POST" action="{{ url_for('med.delete_medication', med_id=med.id) }}" onsubmit="return confirm('Are you sure you want to delete this medication?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center mt-4">
+            No medications found. <a href="{{ url_for('med.add_medication') }}">Add one here</a>!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

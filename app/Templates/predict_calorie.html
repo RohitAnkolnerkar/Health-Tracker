@@ -1,0 +1,21 @@
+{% extends "Base.html" %}
+
+{% block title %}Calorie Prediction | AI Health Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="text-align:center;">Calorie Burn Prediction</h2>
+    <form method="POST" action="{{ url_for('predict_calorie.predict_calorie') }}">
+
+        <!-- Duration -->
+        <label for="duration">Exercise Duration (minutes)</label>
+        <input type="number" name="Duration" id="duration" placeholder="e.g., 30" required>
+
+        <!-- Body Temp -->
+        <label for="body_temp">Body Temperature (°C)</label>
+        <input type="number" name="Body_Temp" id="body_temp" step="0.1" placeholder="e.g., 37.2" required>
+
+        <button type="submit">Predict Calories</button>
+    </form>
+</div>
+{% endblock %}

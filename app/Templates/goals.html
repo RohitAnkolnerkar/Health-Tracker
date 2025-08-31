@@ -1,0 +1,112 @@
+{% extends "goal_base.html" %}
+{% block title %}Show Goals{% endblock %}
+
+{% block content %}
+<div class="goal-container">
+  <h2>User Goals for <span class="username-highlight">{{ username }}</span></h2>
+
+  {% if goals %}
+  <div class="table-wrapper">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Goal Type</th>
+          <th>Target</th>
+          <th>Unit</th>
+          <th>Frequency</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Total Progress</th>
+          <th>Today Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for goal in goals %}
+        <tr>
+          <td>{{ goal.goal.goal_type }}</td>
+          <td>{{ goal.goal.target_value }}</td>
+          <td>{{ goal.goal.unit }}</td>
+          <td>{{ goal.goal.frequency }}</td>
+          <td>{{ goal.goal.start_date.strftime('%Y-%m-%d') }}</td>
+          <td>{{ goal.goal.end_date.strftime('%Y-%m-%d') }}</td>
+          <td>
+            {{ goal.goal.current_progress }}
+            <div class="progress-bar">
+              <div class="progress-fill">
+                {{ (goal.goal.current_progress / goal.goal.target_value) * 100 | round(0) }}%
+              </div>
+            </div>
+          </td>
+          <td>
+            {% set today_progress = None %}
+            {% for dp in goal.goal.daily_progress %}
+              {% if dp.date == today %}
+                {% set today_progress = dp.progress %}
+              {% endif %}
+            {% endfor %}
+
+            {% if today_progress is not none and today_progress >= goal.goal.target_value %}
+              ✅ Completed
+            {% else %}
+              ❌ {{ today_progress if today_progress is not none else 0 }} / {{ goal.goal.target_value }}
+            {% endif %}
+          </td>
+        </tr>
+
+        <!-- Calendar Streak Row -->
+        <tr>
+          <td colspan="8">
+            <strong>Streak:</strong> {{ goal.streak }} days
+
+            <div class="calendar">
+              {% for i in range(30) %}
+                {% set day = (today - timedelta(days=29 - i)) %}
+                {% set date_str = day.isoformat() %}
+                <div class="day-box
+                     {% if date_str in goal.progress_by_date %}
+                        completed
+                     {% endif %}
+                     {% if day == today %}
+                        today
+                     {% endif %}
+                    "
+                    title="{{ date_str }}">
+                </div>
+              {% endfor %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert-warning">
+    No goals found for this user.
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.calendar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 10px;
+}
+.day-box {
+  width: 20px;
+  height: 20px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.day-box.completed {
+  background-color: #28a745;
+}
+.day-box.today {
+  border: 2px solid #007bff;
+}
+</style>
+
+{% endblock %}

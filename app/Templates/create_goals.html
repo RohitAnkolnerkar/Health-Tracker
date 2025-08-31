@@ -1,0 +1,40 @@
+{% extends "Base.html" %}
+{% block title %} Goals Input {% endblock %}
+{% block content %}
+<div class="container">
+    <form action="{{ url_for('goals.create_goal') }}" method="POST" class="goal-form">
+        <label for="goal_type">Goal Type</label>
+        <select id="goal_type" name="goal_type" required>
+            <option value="steps">Steps</option>
+            <option value="calories Burned">Calories Burned</option>
+            <option value="sleep">Sleep</option>
+            <option value="hydration">Hydration</option>
+            <option value="weight">Weight</option>
+            <option value="Calories Consumed"> Calories Consumed</option>
+
+        </select>
+
+        <label for="target_value">Target Value</label>
+        <input type="number" step="any" id="target_value" name="target_value" required>
+
+        <label for="unit">Unit</label>
+        <input type="text" id="unit" name="unit" placeholder="e.g., steps, kcal, hours" required>
+
+        <label for="frequency">Frequency</label>
+        <select id="frequency" name="frequency">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+        </select>
+
+        <label for="start_date">Start Date</label>
+        <input type="date" id="start_date" name="start_date" required>
+
+        <label for="end_date">End Date</label>
+        <input type="date" id="end_date" name="end_date" required>
+
+        <input type="hidden" name="user_id" value="{{ user_id }}">
+
+        <button type="submit">Create Goal</button>
+    </form>
+</div>
+{% endblock %}

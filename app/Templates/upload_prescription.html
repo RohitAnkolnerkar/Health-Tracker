@@ -1,0 +1,58 @@
+{% extends "Base.html" %}
+
+{% block title %}Prescription Upload | AI Health Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="text-align:center;">Welcome, {{ user.username }}</h2>
+    <h3 style="margin-top:1rem;">Upload a New Prescription</h3>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <label for="prescription_name">Prescription Name</label>
+        <input type="text" name="prescription_name" id="prescription_name" placeholder="e.g., Blood Report, X-ray" required>
+
+        <label for="image">Upload Image</label>
+        <input type="file" name="image" id="image" accept="image/*" required>
+
+        <button type="submit">Upload</button>
+    </form>
+</div>
+
+{% if analysis %}
+<div class="card" style="margin-top: 2rem;">
+    <h3>📊 AI Analysis Result</h3>
+
+    <h4>🩺 Predicted Disease:</h4>
+    <p>{{ analysis.predicted_disease }}</p>
+
+    <h4>💊 Medicines & Dosages:</h4>
+    {% if analysis.medicines %}
+        <ul>
+        {% for med in analysis.medicines %}
+            <li><strong>{{ med.name }}</strong> — {{ med.dosage }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No medicines detected.</p>
+    {% endif %}
+
+    <h4>📄 Extracted Text:</h4>
+    <pre style="background: #f9f9f9; padding: 1rem; border-radius: 5px;">{{ analysis.text }}</pre>
+</div>
+{% endif %}
+
+{% if prescriptions %}
+<div class="card" style="margin-top: 2rem;">
+    <h3>Your Uploaded Prescriptions</h3>
+    <ul style="list-style-type: none; padding: 0;">
+        {% for p in prescriptions %}
+        <li style="margin-bottom: 1.5rem; border-bottom: 1px solid #ccc; padding-bottom: 1rem;">
+            <strong>{{ p.prescription_name }}</strong><br>
+            <small>Uploaded at: {{ p.uploaded_at.strftime('%d %b %Y, %I:%M %p') }}</small><br><br>
+            <img src="{{ url_for('static', filename=p.image_url) }}" alt="Prescription Image" width="250" style="border: 1px solid #ccc; border-radius: 10px;">
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

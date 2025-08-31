@@ -1,0 +1,22 @@
+{% extends "Base.html" %}
+{% block title %}Prediction Result{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="result-box">
+    <h2>Top Predicted Diseases</h2>
+
+    {% if predictions %}
+    <ul>
+      {% for item in predictions %}
+        <li>{{ item.disease }} — {{ item.confidence }}%</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p><strong>Prediction Failed:</strong> No predictions received.</p>
+    {% endif %}
+
+    <a href="{{ url_for('home.home') }}">← Back to Form</a>
+  </div>
+</div>
+{% endblock %}

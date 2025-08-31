@@ -1,0 +1,15 @@
+{% extends "Base.html" %}
+{% block title %}Prediction Result{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="result-box">
+    <h2>Calorie Burn Prediction</h2>
+    {% if prediction and prediction['predicted_calories'] %}
+        <p><strong>Estimated Calories Burned:</strong> {{ prediction['predicted_calories'] }}</p>
+    {% else %}
+        <p><strong>Prediction Failed:</strong> {{ prediction }}</p>
+    {% endif %}
+    <a href="{{ url_for('home.home') }}">← Back to Form</a>
+  </div>
+</div>
+{% endblock %}

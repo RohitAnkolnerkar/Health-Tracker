@@ -1,0 +1,43 @@
+{% extends "Base.html" %}
+
+{% block title %}Personalized Diet Plan{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Your Personalized Diet Plan</h2>
+
+    {% for meal, recipe in plan.items() %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title text-capitalize">{{ meal }}</h4>
+
+            {% if recipe %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="{{ recipe.image }}" class="img-fluid rounded" alt="{{ recipe.title }}">
+                    </div>
+                    <div class="col-md-8">
+                        <h5>{{ recipe.title }}</h5>
+                        {% if recipe.nutrition %}
+                            <p><strong>Calories:</strong> {{ recipe.nutrition.nutrients[0].amount | round(0) }} kcal</p>
+                        {% endif %}
+                        <p><a href="https://spoonacular.com/recipes/{{ recipe.title | replace(' ', '-') }}-{{ recipe.id }}" target="_blank" class="btn btn-outline-primary btn-sm">View Full Recipe</a></p>
+
+                        <!-- Add to My Meals Form -->
+                        <form method="POST" action="{{ url_for('Intake.add_meal_from_plan') }}">
+                            <input type="hidden" name="meal_type" value="{{ meal }}">
+                            <input type="hidden" name="title" value="{{ recipe.title }}">
+                            <input type="hidden" name="calories" value="{{ recipe.nutrition.nutrients[0].amount }}">
+                            <input type="hidden" name="meal_time" value="{{ meal_times[meal] }}">
+                            <button type="submit" class="btn btn-success">Add to My Meals</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-danger">No suitable recipe found for {{ meal }}.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

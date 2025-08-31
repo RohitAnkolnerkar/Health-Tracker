@@ -1,0 +1,26 @@
+{% if analysis %}
+    <h2>📄 Extracted Text</h2>
+    <pre>{{ analysis.text }}</pre>
+
+    <h3>🩺 Detected / Inferred Diseases:</h3>
+    {% if analysis.diseases %}
+        <ul>
+        {% for d in analysis.diseases %}
+            <li>{{ d }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No disease detected.</p>
+    {% endif %}
+
+    <h3>💊 Detected Medicines:</h3>
+    {% if analysis.medicines %}
+        <ul>
+        {% for m in analysis.medicines %}
+            <li>{{ m.name }} → {{ m.dosage }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No medicines detected.</p>
+    {% endif %}
+{% endif %}

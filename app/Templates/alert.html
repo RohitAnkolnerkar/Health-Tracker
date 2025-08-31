@@ -1,0 +1,15 @@
+{% extends "UserBase.html" %}
+{% block title %}HEALTH ALERT!{% endblock %}
+{% block content %}
+<h3>🚨 Recent Alerts:</h3>
+<ul>
+  {% for alert in alerts %}
+    <li>
+      {{ alert.message }}
+      <small class="alert-timestamp">({{ alert.created_at }})</small>
+    </li>
+  {% else %}
+    <li>No alerts yet. 🎉</li>
+  {% endfor %}
+</ul>
+{% endblock %}

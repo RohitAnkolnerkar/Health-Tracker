@@ -1,0 +1,130 @@
+{% extends "Base.html" %}
+
+{% block title %}Profile | AI Health Tracker{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <h2 class="text-center mb-4">🧬 Profile Information</h2>
+
+  <!-- ✏️ Edit Button -->
+  <div class="text-end mb-3">
+    <button id="edit-btn" class="btn btn-outline-primary">
+      ✏️ Edit
+    </button>
+  </div>
+
+  <form method="POST" action="{{ url_for('profile.profile') }}" enctype="multipart/form-data">
+    <div class="row g-4">
+
+      {% set fields1 = [
+        ("cholesterol", "Cholesterol", "text", []),
+        ("diabetes", "Diabetes", "select", ["1", "0"]),
+        ("family_history", "Family History", "select", ["1", "0"]),
+        ("smoking", "Smoking", "select", ["1", "0"]),
+        ("obesity", "Obesity", "select", ["1", "0"]),
+        ("alcohol_consumption", "Alcohol Consumption", "select", ["1", "0"]),
+        ("exercise_hours_per_day", "Exercise Hours Per Day", "text", []),
+        ("diet", "Diet", "select", ["0", "1", "2"]),
+        ("previous_heart_problems", "Previous Heart Problems", "select", ["1", "0"]),
+        ("medication_use", "Medication Use", "select", ["1", "0"])
+      ] %}
+
+      {% set fields2 = [
+        ("stress_level", "Stress Level", "select", ["Low", "Medium", "High"]),
+        ("sedentary_hours_per_day", "Sedentary Hours Per Day", "text", []),
+        ("sleep_hours_per_day", "Sleep Hours Per Day", "text", []),
+        ("blood_sugar", "Blood Sugar", "text", []),
+        ("systolic_blood_pressure", "Systolic Blood Pressure", "text", []),
+        ("diastolic_blood_pressure", "Diastolic Blood Pressure", "text", [])
+      ] %}
+
+      <!-- Column 1 -->
+      <div class="col-md-6">
+        <h5 class="mb-3">🧪 Medical & Lifestyle Details</h5>
+
+        <!-- Profile Photo -->
+        {% if profile and profile.photo %}
+          <div class="mb-3">
+            <img src="{{ url_for('static', filename=profile.photo.split('static/')[-1]) }}"
+                 alt="Profile Photo"
+                 width="100" height="100"
+                 style="border-radius: 50%; object-fit: cover; border: 2px solid #007bff;">
+          </div>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label">Upload New Photo</label>
+          <input type="file" name="photo" class="form-control" disabled>
+        </div>
+
+        {% for name, label, type, options in fields1 %}
+          <div class="mb-3">
+            <label class="form-label">{{ label }}</label>
+            {% if type == 'select' %}
+              <select name="{{ name }}" class="form-select" disabled>
+                {% for opt in options %}
+                  <option value="{{ opt }}" {% if profile and profile[name] == opt %}selected{% endif %}>{{ opt }}</option>
+                {% endfor %}
+              </select>
+            {% else %}
+              <input type="text" name="{{ name }}" class="form-control" value="{{ profile[name] if profile else '' }}" disabled>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Column 2 -->
+      <div class="col-md-6">
+        <h5 class="mb-3">📊 Health Metrics</h5>
+
+        {% for name, label, type, options in fields2 %}
+          <div class="mb-3">
+            <label class="form-label">{{ label }}</label>
+            {% if type == 'select' %}
+              <select name="{{ name }}" class="form-select" disabled>
+                {% for opt in options %}
+                  <option value="{{ opt }}" {% if profile and profile[name] == opt %}selected{% endif %}>{{ opt }}</option>
+                {% endfor %}
+              </select>
+            {% else %}
+              <input type="text" name="{{ name }}" class="form-control" value="{{ profile[name] if profile else '' }}" disabled>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <!-- Diet Type -->
+        <div class="mb-3">
+          <label class="form-label">Diet Type</label>
+          <select name="diet_type" class="form-select" disabled>
+            {% for opt in ["balanced", "keto", "low-carb", "high-protein", "vegan", "vegetarian"] %}
+              <option value="{{ opt }}" {% if profile and profile.diet_type == opt %}selected{% endif %}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Allergies -->
+        <div class="mb-3">
+          <label class="form-label">Allergies (comma-separated)</label>
+          <input type="text" name="allergies" class="form-control" value="{{ profile.allergies if profile else '' }}" disabled>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-success px-4 py-2" disabled>💾 Save Changes</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const editBtn = document.getElementById('edit-btn');
+  const inputs = document.querySelectorAll('input, select, button[type="submit"]');
+
+  editBtn.addEventListener('click', function () {
+    inputs.forEach(input => {
+      if (input.type !== "hidden") {
+        input.disabled = !input.disabled;
+      }
+    });
+  });
+</script>
+{% endblock %}

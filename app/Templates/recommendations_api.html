@@ -1,0 +1,23 @@
+{% extends "Base.html" %}
+{% block title %}Recommended Recipes{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2>AI-Recommended Recipes (Powered by Spoonacular)</h2>
+    <div class="row">
+        {% for meal in meals %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ meal.image }}" class="card-img-top" alt="{{ meal.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ meal.title }}</h5>
+                    {% if meal.nutrition %}
+                        <p class="card-text">Calories: {{ meal.nutrition.nutrients[0].amount }} kcal</p>
+                    {% endif %}
+                    <a href="https://spoonacular.com/recipes/{{ meal.title | replace(' ', '-') }}-{{ meal.id }}" target="_blank" class="btn btn-primary">View Recipe</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

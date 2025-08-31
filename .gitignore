@@ -1,0 +1,58 @@
+# =========================
+# Python Virtual Environment
+# =========================
+health/
+ENV/
+env/
+.venv/
+
+# =========================
+# Database files
+# =========================
+*.db
+
+# =========================
+# Python cache files
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# IDE/editor settings
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Pickle files
+# =========================
+*.pkl
+
+# =========================
+# Logs & temporary files
+# =========================
+*.log
+*.tmp
+*.swp
+.DS_Store
+
+# =========================
+# Jupyter checkpoints
+# =========================
+.ipynb_checkpoints
+
+# =========================
+# Build files
+# =========================
+build/
+dist/
+*.egg-info/
+
+# =========================
+# Secret / Config files
+# =========================
+client_secret.json
+.env
+
+recipes.csv
