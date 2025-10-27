@@ -4,6 +4,31 @@ from pydantic import BaseModel, Field, computed_field
 from typing import Literal, Annotated, List
 import pickle
 import pandas as pd
+import os
+import requests
+
+import os
+import requests
+
+MODEL_DIR = "pickle_files"
+INTAKE_MODEL_PATH = os.path.join(MODEL_DIR, "intake.pkl")
+
+GOOGLE_DRIVE_ID = "1gBWILwHtY0v0Jad6ZF-TjwdX6ETprkz9"  # your file ID
+GOOGLE_DRIVE_URL = f"https://drive.google.com/uc?export=download&id={GOOGLE_DRIVE_ID}"
+
+def download_intake_model():
+    if not os.path.exists(INTAKE_MODEL_PATH):
+        print("⬇️ Downloading intake.pkl from Google Drive...")
+        os.makedirs(MODEL_DIR, exist_ok=True)
+        response = requests.get(GOOGLE_DRIVE_URL)
+        if response.status_code == 200:
+            with open(INTAKE_MODEL_PATH, "wb") as f:
+                f.write(response.content)
+            print("✅ intake.pkl downloaded successfully!")
+        else:
+            print(f"❌ Failed to download intake.pkl (status {response.status_code})")
+
+download_intake_model()
 
 # === Load Models ===
 with open("pickle_files/heart_attack_risk_model.pkl", 'rb') as f:

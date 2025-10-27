@@ -28,7 +28,7 @@ __pycache__/
 # Pickle files
 # =========================
 
-
+pickle_files/intake.pkl
 # =========================
 # Logs & temporary files
 # =========================
