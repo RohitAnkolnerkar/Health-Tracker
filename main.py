@@ -8,28 +8,32 @@ import os
 import requests
 
 import os
-import requests
+import pickle
+import gdown
 
 MODEL_DIR = "pickle_files"
 INTAKE_MODEL_PATH = os.path.join(MODEL_DIR, "intake.pkl")
 
-GOOGLE_DRIVE_ID = "1gBWILwHtY0v0Jad6ZF-TjwdX6ETprkz9"  # your file ID
-GOOGLE_DRIVE_URL = f"https://drive.google.com/uc?export=download&id={GOOGLE_DRIVE_ID}"
+GOOGLE_DRIVE_ID = "1gBWILwHtY0v0Jad6ZF-TjwdX6ETprkz9"
+GOOGLE_DRIVE_URL = f"https://drive.google.com/uc?id={GOOGLE_DRIVE_ID}"
 
 def download_intake_model():
+    """Download intake.pkl from Google Drive safely."""
     if not os.path.exists(INTAKE_MODEL_PATH):
         print("⬇️ Downloading intake.pkl from Google Drive...")
         os.makedirs(MODEL_DIR, exist_ok=True)
-        response = requests.get(GOOGLE_DRIVE_URL)
-        if response.status_code == 200:
-            with open(INTAKE_MODEL_PATH, "wb") as f:
-                f.write(response.content)
-            print("✅ intake.pkl downloaded successfully!")
-        else:
-            print(f"❌ Failed to download intake.pkl (status {response.status_code})")
+        try:
+            gdown.download(GOOGLE_DRIVE_URL, INTAKE_MODEL_PATH, quiet=False)
+            # ✅ Validate that the file is actually a pickle, not HTML
+            with open(INTAKE_MODEL_PATH, "rb") as f:
+                first_bytes = f.read(10)
+                if first_bytes.startswith(b"<html") or first_bytes.startswith(b"<!DOCTYPE"):
+                    raise ValueError("Downloaded file is HTML, not a pickle.")
+            print("✅ intake.pkl downloaded and verified successfully!")
+        except Exception as e:
+            print(f"❌ Failed to download intake.pkl: {e}")
 
 download_intake_model()
-
 # === Load Models ===
 with open("pickle_files/heart_attack_risk_model.pkl", 'rb') as f:
     heart_model = pickle.load(f)
