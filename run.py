@@ -1,29 +1,18 @@
+# run.py
+import os
+from fastapi import FastAPI
+from starlette.middleware.wsgi import WSGIMiddleware
 from app import create_app
-import uvicorn
-from multiprocessing import Process
 from main import fastapi_app
-from dotenv import load_dotenv
-load_dotenv() 
-def run_flask():
-    app = create_app()
-    # Listen on all interfaces inside Docker
-    app.run(host="0.0.0.0", port=5000, use_reloader=False)
 
-def run_fastapi():
-    # Listen on all interfaces inside Docker
-    uvicorn.run(fastapi_app, host="0.0.0.0", port=8000)
+# Initialize Flask app
+flask_app = create_app()
+
+# Mount Flask app inside FastAPI
+# Flask routes will be accessible under /flask/*
+fastapi_app.mount("/flask", WSGIMiddleware(flask_app))
 
 if __name__ == "__main__":
-    flask_proc = Process(target=run_flask)
-    fastapi_proc = Process(target=run_fastapi)
-
-    flask_proc.start()
-    fastapi_proc.start()
-
-    try:
-        flask_proc.join()
-        fastapi_proc.join()
-    except KeyboardInterrupt:
-        print("Shutting down...")
-        flask_proc.terminate()
-        fastapi_proc.terminate()
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(fastapi_app, host="0.0.0.0", port=port)
