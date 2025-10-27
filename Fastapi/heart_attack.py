@@ -9,7 +9,7 @@ from sklearn.metrics import classification_report, accuracy_score, roc_auc_score
 import pickle  # for saving model
 
 # Step 1: Load dataset
-df = pd.read_csv("C:\\Users\\Lenovo\\OneDrive\\ドキュメント\\heart-attack-risk-prediction-dataset.csv")
+df = pd.read_csv("Datasets\heart-attack-risk-prediction-dataset.csv")
   
 df=df.drop(columns=['Income','Triglycerides','Physical Activity Days Per Week','Heart Attack Risk (Text)','CK-MB', 'Troponin'])
 print(df.columns)

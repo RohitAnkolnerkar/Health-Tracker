@@ -4,18 +4,13 @@ from datetime import datetime
 from app import sessionLocal
 import csv
 from io import StringIO
- 
-
 admin_bp=Blueprint('admin',__name__,url_prefix='/admin')
-
-
 @admin_bp.route('/admin_dashboard', methods=['GET', 'POST'])
 def admin_dashboard():
     db = sessionLocal()
     all_users = db.query(User).all()
     total_users = db.query(User).count()
     all_records = []
-
     if request.method == 'POST':
         user_id = request.form.get("user_id")
         start_date = request.form.get("start_date")

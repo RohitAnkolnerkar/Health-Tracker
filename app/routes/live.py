@@ -58,10 +58,7 @@ def fetch_all_users_fit_data():
             print(f"❌ Failed to fetch data for {user.username}: {e}")
 
     db.commit()
-
-
 # 🧠 Actual logic to call Fit API and save
-
 def _fetch_and_store_for_user(user):
     credentials_info = json.loads(user.google_token)
     credentials = Credentials.from_authorized_user_info(credentials_info)

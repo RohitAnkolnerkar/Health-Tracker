@@ -9,8 +9,8 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.calibration import CalibratedClassifierCV
 
 # Load data
-data = pd.read_csv("C:\\Users\\Lenovo\\OneDrive\\ドキュメント\\Training.csv")
-test = pd.read_csv("C:\\Users\\Lenovo\\OneDrive\\ドキュメント\\Testing.csv")
+data = pd.read_csv("Datasets\Training.csv")
+test = pd.read_csv("Datasets\Testing.csv")
 df = data.drop(columns=['Unnamed: 133'])
 
 # Encode labels

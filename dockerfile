@@ -22,12 +22,12 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
+# Copy the rest of the project files
 COPY . .
 
 # Expose the ports for Flask + FastAPI
 EXPOSE 5000
 EXPOSE 8000
 
-# Command to run your app (adjust if you use a single run.py)
+# Run your app
 CMD ["python", "run.py"]

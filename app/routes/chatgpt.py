@@ -1,12 +1,15 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for
-import requests
-import os
-
+import requests, os, json
+from dotenv import load_dotenv
+load_dotenv()
 cha = Blueprint('Ai', __name__)
 
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")
-HF_MODEL = "google/flan-t5-large"  # More stable model
+# === GEMINI CONFIG ===
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1/models/{GEMINI_MODEL}:generateContent"
 
+# === ROUTES ===
 @cha.route("/")
 def index():
     return redirect(url_for("Ai.chat"))
@@ -15,49 +18,35 @@ def index():
 def chat():
     if "user" not in session:
         session["user"] = "test_user"
-
     if "chat_history" not in session:
         session["chat_history"] = []
 
     if request.method == "POST":
-        user_input = request.form["message"]
+        user_input = request.form.get("message", "").strip()
+        if not user_input:
+            return redirect(url_for("Ai.chat"))
+
         session["chat_history"].append({"role": "user", "content": user_input})
         session.modified = True
 
-        full_prompt = build_prompt(session["chat_history"])
-
-        headers = {
-            "Authorization": f"Bearer {HF_API_TOKEN}"
-        }
-        payload = {
-            "inputs": full_prompt,
-            "parameters": {
-                "max_new_tokens": 100,
-                "temperature": 0.7
-            }
-        }
-
-        response = requests.post(
-            f"https://api-inference.huggingface.co/models/{HF_MODEL}",
-            headers=headers,
-            json=payload
-        )
-
-        print("Status code:", response.status_code)
-        print("Response:", response.text)
+        # Prepare payload for Gemini
+        prompt_text = "\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in session["chat_history"]])
+        payload = {"contents": [{"parts": [{"text": prompt_text}]}]}
 
         try:
+            response = requests.post(
+                f"{GEMINI_API_URL}?key={GEMINI_API_KEY}",
+                headers={"Content-Type": "application/json"},
+                json=payload
+            )
             data = response.json()
-            if isinstance(data, dict) and "error" in data:
-                reply = f"⚠️ API Error: {data['error']}"
-            elif isinstance(data, list) and "generated_text" in data[0]:
-                generated = data[0]["generated_text"]
-                reply = generated.replace(full_prompt, "").strip()
+            if response.status_code == 200 and "candidates" in data and len(data["candidates"]) > 0:
+                reply = data["candidates"][0]["content"]["parts"][0]["text"].strip()
             else:
-                reply = "⚠️ AI did not return a valid response."
+                reply = "⚠️ No valid response from AI."
         except Exception as e:
-            print("Parsing error:", e)
-            reply = "❌ Sorry, I couldn't generate a response."
+            print("Error:", e)
+            reply = "❌ Could not connect to Gemini AI."
 
         session["chat_history"].append({"role": "assistant", "content": reply})
         session.modified = True
@@ -70,13 +59,3 @@ def chat():
 def reset():
     session.pop("chat_history", None)
     return redirect(url_for("Ai.chat"))
-
-def build_prompt(history):
-    prompt = ""
-    for msg in history:
-        if msg["role"] == "user":
-            prompt += f"User: {msg['content']}\n"
-        elif msg["role"] == "assistant":
-            prompt += f"AI: {msg['content']}\n"
-    prompt += "AI:"
-    return prompt

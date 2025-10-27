@@ -7,7 +7,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(Base):
     __tablename__ = 'users'
-
     id = Column(Integer, primary_key=True)
     username = Column(String, unique=True)
     hash_password = Column(String)
@@ -23,7 +22,6 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     google_token = Column(String)
-
     health_records = relationship("HealthRecord", back_populates="user", cascade="all, delete")
     prescriptions = relationship("Prescription", back_populates="user", cascade="all, delete")
     alerts = relationship("Alert", back_populates="user")
@@ -67,7 +65,6 @@ class Prescription(Base):
     predicted_disease = Column(String(100))
     medicines_json = Column(JSON)
     uploaded_at = Column(DateTime)
-
     user = relationship("User", back_populates="prescriptions")
 
 

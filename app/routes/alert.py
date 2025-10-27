@@ -18,4 +18,4 @@ def alert(user_id, message):
     except Exception as e:
         print(f"❌ Failed to create alert: {e}")
     finally:
-        db.close()
+        db.close()   

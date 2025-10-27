@@ -10,7 +10,7 @@ import pickle  # for saving model
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
-df = pd.read_csv("C:\\Users\\Lenovo\\OneDrive\\ドキュメント\\recipes.csv")
+df = pd.read_csv("Datasets\recipes.csv")
 df.columns
 df=df[['Name','Calories']]
 df['Name'] = df['Name'].str.lower().str.strip()

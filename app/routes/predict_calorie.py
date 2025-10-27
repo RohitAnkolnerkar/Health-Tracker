@@ -6,11 +6,7 @@ from sqlalchemy import desc
 
 API_URL = "http://127.0.0.1:8000/predict_calories"
 pre = Blueprint('predict_calorie', __name__)
-
-
 result=0
-
-
 @pre.route("/predict_calorie", methods=["POST", "GET"])
 def predict_calorie():
     db = sessionLocal()

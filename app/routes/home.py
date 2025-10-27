@@ -17,9 +17,6 @@ def home():
             profile = db.query(Profile).filter_by(user_id=user.id).first()
             if profile and profile.photo:
                 user_photo = profile.photo
-           
-            
-
     db.close()
     return render_template("home.html", user_photo=user_photo)
 

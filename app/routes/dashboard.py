@@ -8,7 +8,6 @@ dashboard_api = Blueprint("dashboard_api", __name__)
 from app.utils.send_message  import user_reminders 
 from app.utils.daily_insights import generate_daily_insights
 
-
 @dashboard_api.route("/dashboard")
 def dashboard_page():
     if "user" not in session:
