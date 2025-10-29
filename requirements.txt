@@ -35,12 +35,9 @@ MarkupSafe==3.0.2
 multidict==6.6.3
 nest-asyncio==1.6.0
 networkx==3.5
-numpy==1.26.4
-pandas==2.3.0
-scikit-learn==1.5.2
-scipy==1.11.4
-Cython==3.0.10
+numpy==2.3.1
 packaging==25.0
+pandas==2.3.0
 pillow==11.3.0
 plotly==6.2.0
 pyparsing==3.2.3
@@ -54,6 +51,8 @@ regex==2025.7.34
 requests==2.32.4
 retrying==1.4.0
 rsa==4.9.1
+scikit-learn==1.6.1
+scipy==1.16.0
 setuptools==80.9.0
 six==1.17.0
 sklearn-compat==0.1.3
