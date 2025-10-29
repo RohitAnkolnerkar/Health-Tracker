@@ -10,7 +10,7 @@ flask_app = create_app()
 
 # Mount Flask app inside FastAPI
 # Flask routes will be accessible under /flask/*
-fastapi_app.mount("/flask", WSGIMiddleware(flask_app))
+fastapi_app.mount("/", WSGIMiddleware(flask_app))
 
 if __name__ == "__main__":
     import uvicorn
