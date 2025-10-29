@@ -1,3 +1,4 @@
+# main.py
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, computed_field
@@ -5,7 +6,6 @@ from typing import Literal, Annotated, List
 import pickle
 import pandas as pd
 import os
-import threading
 import gdown
 
 # === Paths & Config ===
@@ -28,10 +28,6 @@ le = None
 all_symptom = None
 intake_model = None
 
-# === Safe Model Loader ===
-def safe_load_pickle(path):
-    with open(path, "rb") as f:
-        return pickle.load(f)
 
 def download_intake_model():
     """Download intake.pkl from Google Drive if missing."""
@@ -39,52 +35,51 @@ def download_intake_model():
         print("⬇️ Downloading intake.pkl from Google Drive...")
         try:
             gdown.download(GOOGLE_DRIVE_URL, INTAKE_MODEL_PATH, quiet=False)
-            with open(INTAKE_MODEL_PATH, "rb") as f:
-                first_bytes = f.read(10)
-                if first_bytes.startswith(b"<html") or first_bytes.startswith(b"<!DOCTYPE"):
-                    raise ValueError("Downloaded file is HTML, not a pickle.")
             print("✅ intake.pkl downloaded successfully.")
         except Exception as e:
             print(f"❌ intake.pkl download failed: {e}")
     else:
         print("✅ intake.pkl already exists. Skipping download.")
 
+
 def load_models():
-    """Load all models (except intake) into memory."""
-    global heart_model, calorie_model, disease_model, le, all_symptom, intake_model
+    """Load all models sequentially (memory-safe)."""
+    global heart_model, calorie_model, disease_model, le, all_symptom
     try:
-        print("🔄 Loading smaller models...")
+        print("🔄 Loading models...")
         with open(HEART_MODEL_PATH, "rb") as f:
             heart_model = pickle.load(f)
         with open(CALORIE_MODEL_PATH, "rb") as f:
             calorie_model = pickle.load(f)
         with open(DISEASE_MODEL_PATH, "rb") as f:
             disease_model, le, all_symptom = pickle.load(f)
-        print("✅ Core models loaded successfully.")
-
-        # Intake model loads lazily later (to prevent OOM)
-        threading.Thread(target=lazy_load_intake_model).start()
+        print("✅ Models loaded successfully.")
     except Exception as e:
         print(f"❌ Model loading error: {e}")
 
-def lazy_load_intake_model():
-    """Load the large intake.pkl asynchronously after startup."""
+
+def load_intake_model():
+    """Lazily load the intake model only when needed."""
     global intake_model
     if intake_model is None:
         download_intake_model()
         try:
             with open(INTAKE_MODEL_PATH, "rb") as f:
                 intake_model = pickle.load(f)
-            print("✅ intake.pkl loaded successfully in background.")
+            print("✅ intake.pkl loaded successfully.")
         except Exception as e:
             print(f"❌ intake.pkl load failed: {e}")
 
+
 # === Initialize FastAPI App ===
-fastapi_app = FastAPI(title="AI Health Tracker API", version="1.1.0")
+fastapi_app = FastAPI(title="AI Health Tracker API", version="1.2.0")
+
 
 @fastapi_app.on_event("startup")
 def on_startup():
-    threading.Thread(target=load_models).start()
+    print("🚀 Starting FastAPI app — loading minimal models...")
+    load_models()
+
 
 # === Input Schemas ===
 class HeartAttackInput(BaseModel):
@@ -108,6 +103,7 @@ class HeartAttackInput(BaseModel):
     Stress_Level: Literal["Low", "Moderate", "High"]
     Medication_Use: Literal["Yes", "No"]
 
+
 class Caloriesinput(BaseModel):
     Gender: Annotated[Literal['male', 'female'], Field(...)]
     Age: int
@@ -121,16 +117,20 @@ class Caloriesinput(BaseModel):
     def Bmi(self) -> float:
         return self.Weight / (self.Height ** 2)
 
+
 class Userinput(BaseModel):
     symptom: List[str]
 
+
 class FoodItems(BaseModel):
     food_list: list[str]
+
 
 # === Routes ===
 @fastapi_app.get("/", tags=["Root"])
 def root():
     return {"status": "✅ FastAPI is running on Render"}
+
 
 @fastapi_app.post("/predict_heart_attack_risk", tags=["Heart Attack Prediction"])
 def predict_heart_attack(data: HeartAttackInput):
@@ -140,6 +140,7 @@ def predict_heart_attack(data: HeartAttackInput):
     prediction = heart_model.predict(df)[0]
     probability = heart_model.predict_proba(df)[0][1]
     return {"heart_attack_risk": bool(prediction), "risk_probability": round(probability, 4)}
+
 
 @fastapi_app.post("/predict_calories", tags=["Calorie Prediction"])
 def predict_calories(data: Caloriesinput):
@@ -158,6 +159,7 @@ def predict_calories(data: Caloriesinput):
     prediction = calorie_model.predict(input_df)[0]
     return {'predicted_calories': float(prediction)}
 
+
 @fastapi_app.post("/predict_dieases", tags=["Disease Prediction"])
 def predict_diseases(data: Userinput):
     if disease_model is None or le is None:
@@ -172,11 +174,14 @@ def predict_diseases(data: Userinput):
     result = [{"disease": d, "confidence": p} for d, p in zip(top_diseases, top_probs)]
     return {"top_predictions": result}
 
+
 @fastapi_app.post("/predict_daily_calories", tags=["Daily Intake Prediction"])
 def predict_daily_calories(items: FoodItems):
     global intake_model
     if intake_model is None:
-        return JSONResponse(status_code=503, content={"error": "intake.pkl model still loading..."})
+        load_intake_model()  # Lazy load here if not loaded yet
+        if intake_model is None:
+            return JSONResponse(status_code=503, content={"error": "intake.pkl still loading..."})
     results = []
     total = 0.0
     for food in items.food_list:
