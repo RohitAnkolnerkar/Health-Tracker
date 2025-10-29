@@ -16,7 +16,7 @@ class Config:
         "https://www.googleapis.com/auth/fitness.oxygen_saturation.read",
         "https://www.googleapis.com/auth/fitness.body.read"
     ]
-    REDIRECT_URI = "http://localhost:5000/oauth2callback"
+   REDIRECT_URI = "https://health-tracker-9.onrender.com/flask/oauth2callback"
 
 engine = None
 sessionLocal = scoped_session(sessionmaker())
