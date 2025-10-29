@@ -23,7 +23,7 @@ sessionLocal = scoped_session(sessionmaker())
 Base = declarative_base()
 
 def create_app(config_class=Config):
-    app = Flask(__name__, template_folder='templates', static_folder='static')
+    app = Flask(__name__, template_folder='Templates', static_folder='static')
     app.config.from_object(config_class)
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
