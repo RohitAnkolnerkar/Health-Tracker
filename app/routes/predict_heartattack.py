@@ -1,6 +1,7 @@
 import requests
 from app.model import Profile, User
 from app import sessionLocal
+import os
 
 API_URL = os.getenv("FASTAPI_URL", "https://health-tracker-production-5d74.up.railway.app") + "/predict_dieases"
 
