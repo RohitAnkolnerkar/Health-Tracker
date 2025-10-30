@@ -2,7 +2,7 @@ import requests
 from flask import request, render_template, Blueprint
 import pickle
 
-API_URL = "http://127.0.0.1:8000/predict_dieases"
+API_URL = os.getenv("FASTAPI_URL", "https://health-tracker-production-5d74.up.railway.app") + "/predict_dieases"
 pre_die = Blueprint('predict_dieases', __name__)
 
 with open("pickle_files/Dieases.pkl", "rb") as f:
