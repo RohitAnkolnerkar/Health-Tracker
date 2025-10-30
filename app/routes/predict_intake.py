@@ -6,6 +6,7 @@ from app import sessionLocal
 from app.utils.recomendation import get_calorie_burn_recommendation
 from app.utils.meal_recc import get_spoonacular_meals
 from app.utils.diet_plan import generate_diet_plan
+import os
 
 inta = Blueprint("Intake", __name__)
 API_URL = os.getenv("FASTAPI_URL", "https://health-tracker-production-5d74.up.railway.app") + "/predict_daily_calories"
