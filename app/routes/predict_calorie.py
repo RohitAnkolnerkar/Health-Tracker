@@ -4,7 +4,7 @@ from app import sessionLocal
 from app.model import User,HealthRecord
 from sqlalchemy import desc
 
-API_URL = "http://127.0.0.1:8000/predict_calories"
+API_URL = os.getenv("FASTAPI_URL", "https://health-tracker-production-5d74.up.railway.app") + "/predict_calories"
 pre = Blueprint('predict_calorie', __name__)
 result=0
 @pre.route("/predict_calorie", methods=["POST", "GET"])
