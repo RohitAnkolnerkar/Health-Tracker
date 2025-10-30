@@ -5,15 +5,16 @@ from starlette.middleware.wsgi import WSGIMiddleware
 from app import create_app
 
 # -----------------------------------------------------------
-# ✅ Lazy-mount Flask app only once at startup
+# ✅ Mount Flask app at root ("/") or under "/flask"
 # -----------------------------------------------------------
 
 def mount_flask():
     """Mount Flask app inside FastAPI after startup."""
     try:
         flask_app = create_app()
-        fastapi_app.mount("/flask", WSGIMiddleware(flask_app))
-        print("✅ Flask app mounted under /flask")
+        # Mount directly at root so your dashboard loads on /
+        fastapi_app.mount("/", WSGIMiddleware(flask_app))
+        print("✅ Flask app mounted successfully at root ('/').")
     except Exception as e:
         print(f"❌ Error mounting Flask app: {e}")
 
@@ -27,12 +28,12 @@ def startup_event():
     print("🚀 FastAPI + Flask hybrid app started successfully")
 
 # -----------------------------------------------------------
-# ✅ Railway entrypoint
+# ✅ Railway entrypoint (FastAPI + Flask)
 # -----------------------------------------------------------
 
-app = fastapi_app  # Railway will look for variable named `app`
+app = fastapi_app  # Railway detects this automatically
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 8080))  # Railway uses port 8080 by default
     uvicorn.run("run:app", host="0.0.0.0", port=port, reload=False)
