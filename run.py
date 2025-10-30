@@ -1,25 +1,31 @@
 import os
 from fastapi import FastAPI
-from main import fastapi_app
 from starlette.middleware.wsgi import WSGIMiddleware
 from app import create_app
 
+# -----------------------------------------------------------
+# ✅ Create FastAPI and mount Flask
+# -----------------------------------------------------------
+app = FastAPI(title="AI Health Tracker")
+
 def mount_flask():
+    """Mount Flask inside FastAPI (at root '/')"""
     try:
         flask_app = create_app()
-        fastapi_app.mount("/", WSGIMiddleware(flask_app))
-        print("✅ Flask app mounted successfully at root ('/').")
+        app.mount("/", WSGIMiddleware(flask_app))
+        print("✅ Flask dashboard mounted successfully at root '/'")
     except Exception as e:
         print(f"❌ Error mounting Flask app: {e}")
 
-@fastapi_app.on_event("startup")
+@app.on_event("startup")
 def startup_event():
     mount_flask()
-    print("🚀 FastAPI + Flask hybrid app started successfully")
+    print("🚀 FastAPI + Flask hybrid started")
 
-app = fastapi_app
-
+# -----------------------------------------------------------
+# ✅ Railway entrypoint
+# -----------------------------------------------------------
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8080))
-    uvicorn.run("run:app", host="0.0.0.0", port=port, reload=False)
+    uvicorn.run("run:app", host="0.0.0.0", port=port)
