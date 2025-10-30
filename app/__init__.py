@@ -1,17 +1,32 @@
-# app/__init__.py
 from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from datetime import timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
+import json
 
 # ================= CONFIG =================
 class Config:
     DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///ai.db")
     DEBUG = os.getenv("DEBUG", "True") == "True"
     SECRET_KEY = os.getenv("SECRET_KEY", "your-very-secret-key")
-    CLIENT_SECRETS_FILE = "client_secret.json"
+
+    # ================= GOOGLE OAUTH CONFIG =================
+    GOOGLE_CLIENT_SECRET_JSON = os.getenv("GOOGLE_CLIENT_SECRET_JSON")  # Loaded from env on Railway
+
+    if GOOGLE_CLIENT_SECRET_JSON:
+        # ✅ Parse JSON from environment variable
+        CLIENT_SECRETS_FILE = json.loads(GOOGLE_CLIENT_SECRET_JSON)
+        REDIRECT_URI = CLIENT_SECRETS_FILE["web"]["redirect_uris"][0]
+    else:
+        # ✅ Fallback to local file for local development
+        CLIENT_SECRETS_FILE = "client_secret.json"
+        REDIRECT_URI = os.getenv(
+            "REDIRECT_URI",
+            "http://localhost:5000/oauth2callback"
+        )
+
     SCOPES = [
         "https://www.googleapis.com/auth/fitness.activity.read",
         "https://www.googleapis.com/auth/fitness.heart_rate.read",
@@ -19,7 +34,6 @@ class Config:
         "https://www.googleapis.com/auth/fitness.oxygen_saturation.read",
         "https://www.googleapis.com/auth/fitness.body.read"
     ]
-    REDIRECT_URI = os.getenv("REDIRECT_URI", "https://your-railway-app-url.up.railway.app/flask/oauth2callback")
 
 # ================= DATABASE SETUP =================
 engine = None
@@ -88,11 +102,19 @@ def create_app(config_class=Config):
         scheduler.start()
         print("🕒 Background scheduler started successfully (Railway).")
 
-    # Start scheduler on app creation
     start_scheduler()
 
     @app.route("/flask")
     def health():
         return {"status": "✅ Flask backend running on Railway"}
+
+    # ✅ Optional check route (for debugging on Railway)
+    @app.route("/flask/check_env")
+    def check_env():
+        has_secret = bool(os.getenv("GOOGLE_CLIENT_SECRET_JSON"))
+        return {
+            "GOOGLE_CLIENT_SECRET_JSON_found": has_secret,
+            "redirect_uri": app.config["REDIRECT_URI"]
+        }
 
     return app
