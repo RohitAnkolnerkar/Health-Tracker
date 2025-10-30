@@ -1,6 +1,7 @@
 import requests
 from flask import request, render_template, Blueprint
 import pickle
+import os
 
 API_URL = os.getenv("FASTAPI_URL", "https://health-tracker-production-5d74.up.railway.app") + "/predict_dieases"
 pre_die = Blueprint('predict_dieases', __name__)
