@@ -3,6 +3,7 @@ from flask import request, render_template, Blueprint,session
 from app import sessionLocal
 from app.model import User,HealthRecord
 from sqlalchemy import desc
+import os
 
 API_URL = os.getenv("FASTAPI_URL", "https://health-tracker-production-5d74.up.railway.app") + "/predict_calories"
 pre = Blueprint('predict_calorie', __name__)
