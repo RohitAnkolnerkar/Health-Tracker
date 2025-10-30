@@ -2,7 +2,7 @@ import requests
 from app.model import Profile, User
 from app import sessionLocal
 
-API_URL = "http://127.0.0.1:8000/predict_dieases"
+API_URL = os.getenv("FASTAPI_URL", "https://health-tracker-production-5d74.up.railway.app") + "/predict_dieases"
 
 def run_heart_risk_batch_prediction():
     db = sessionLocal()
