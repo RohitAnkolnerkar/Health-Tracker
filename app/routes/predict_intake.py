@@ -8,7 +8,7 @@ from app.utils.meal_recc import get_spoonacular_meals
 from app.utils.diet_plan import generate_diet_plan
 
 inta = Blueprint("Intake", __name__)
-FASTAPI_URL = "http://localhost:8000/predict_daily_calories"
+API_URL = os.getenv("FASTAPI_URL", "https://health-tracker-production-5d74.up.railway.app") + "/predict_daily_calories"
 
 @inta.route("/total_intake", methods=["GET", "POST"])
 def total():
